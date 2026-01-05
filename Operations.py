@@ -19,10 +19,10 @@ limitswitch = ms.LimitSwitch()
 data = ms.Sensors(battery, motors, limitswitch)
 light = ms.SubLight()
 leaksensor = ms.LeakDetection()
-# heartbeat = ms.LED(25)
-# heartbeat.blink()
-# SOS = ms.LED(11)
-# SOS.off() 
+heartbeat = ms.LED(25)
+heartbeat.blink()
+SOS = ms.LED(11)
+SOS.off() 
 
 disarm = False
 SOS_flag = False
