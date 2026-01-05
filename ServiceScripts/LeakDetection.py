@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/home/pi/MeltStake-Pi5/venv/bin/python
 # pyright: reportMissingImports=false
 import board
 from digitalio import DigitalInOut, Direction, Pull  # GPIO module
@@ -9,13 +9,13 @@ leak = DigitalInOut(board.D27)
 leak.direction = Direction.INPUT
 leak.pull = Pull.DOWN
 
-with open('/home/pi/MeltStake/ServiceScripts/LeakState.txt', "w") as f:  
+with open('/home/pi/MeltStake-Pi5/ServiceScripts/LeakState.txt', "w") as f:  
     # write new data line
     f.write("False")
 
 while leak.value == False:
     time.sleep(0.25)
 
-with open('/home/pi/MeltStake/ServiceScripts/LeakState.txt', "w") as f:  
+with open('/home/pi/MeltStake-Pi5/ServiceScripts/LeakState.txt', "w") as f:  
     # write new data line
     f.write("True")
