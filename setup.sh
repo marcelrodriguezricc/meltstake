@@ -572,4 +572,121 @@ fi
 log "Interface configuration complete (reboot required)"
 
 # ----- DIRECTORY PARAMETERS -----
-sudo chown -R pi:pi $PROJECT_DIR
+
+# Exit bash if a command fails
+set -euo pipefail
+
+# Service Script directory path
+SERVICE_DIR="$PROJECT_DIR/ServiceScripts"
+
+# Warn if Service Script directory does not exist
+if [[ ! -d "$SERVICE_DIR" ]]; then
+  echo "WARNING: Service script directory does not exist: $SERVICE_DIR" >&2
+fi
+
+# Set permissions for Project and Service Script directories
+sudo chown -R pi:pi "$PROJECT_DIR"
+touch "$SERVICE_DIR/LeakState.txt"
+chmod +x "$SERVICE_DIR"/*
+chmod +x "$PROJECT_DIR"/main.py
+chown -R pi:pi "$SERVICE_DIR"
+
+# Print configuration success
+echo "SUCCESS: Permissions for project and service script directories configured."
+
+# ----- SERVICE SCRIPTS -----
+
+# List of service scripts
+scripts='heartbeat LeakDetection'
+
+# For each script...
+for SyslogIdentifier in $scripts; do
+
+  # Build paths for log and service file
+  LOG_FILE="/var/log/$SyslogIdentifier.log"
+  SERVICE_FILE="/etc/systemd/system/$SyslogIdentifier.service"
+
+  # Create log file and empty service file
+  touch "$LOG_FILE"
+  : > "$SERVICE_FILE"
+
+  # Build service file content and write to file
+  sudo tee "$SERVICE_FILE" > /dev/null <<EOM
+[Unit]
+Description=$SyslogIdentifier
+
+[Service]
+Type=simple
+WorkingDirectory=$PROJECT_DIR
+User=pi
+Restart=always
+RestartSec=10
+StandardOutput=append:/var/log/$SyslogIdentifier.log
+StandardError=append:/var/log/$SyslogIdentifier.log
+SyslogIdentifier=$SyslogIdentifier
+ExecStart=$SERVICE_DIR/$SyslogIdentifier.py
+
+[Install]
+WantedBy=multi-user.target
+EOM
+
+  # Configure permission for log file
+  sudo chown pi:pi "$LOG_FILE"
+
+  # Enable service script
+  sudo systemctl enable $SyslogIdentifier.service
+
+done
+
+# Check for each log
+for s in $scripts; do
+  if [[ -f "/etc/systemd/system/$s.service" ]]; then
+    echo "OK: $s.service created"
+  else
+    echo "ERROR: $s.service missing" >&2
+    exit 1
+  fi
+done
+
+# Print success for building service files
+echo "SUCCESS: Service files built and verified."
+
+# Melt Stake service file path
+LOG_FILE="/var/log/meltstake.log"
+SERVICE_FILE="/etc/systemd/system/meltstake.service"
+
+# Create log file and empty service file
+touch "$LOG_FILE"
+: > "$SERVICE_FILE"
+
+# Build service file content and write to file
+sudo tee "$SERVICE_FILE" > /dev/null <<EOM
+[Unit]
+Description=run primary meltstake loop
+
+[Service]
+Type=simple
+WorkingDirectory=$PROJECT_DIR
+User=root
+Restart=always
+RestartSec=30
+StandardOutput=append:$LOG_FILE
+StandardError=append:$LOG_FILE
+SyslogIdentifier=meltstake
+ExecStart=$PROJECT_DIR/main.py
+
+[Install]
+WantedBy=multi-user.target
+EOM
+
+# Configure permission for log file
+sudo chown pi:pi "$LOG_FILE"
+
+# Enable service script
+sudo systemctl enable --now meltstake.service
+
+# Reload daemon
+sudo systemctl daemon-reload
+
+# Print success for building service files
+echo "SUCCESS: Melt Stake service file built and verified."
