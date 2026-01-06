@@ -752,14 +752,46 @@ echo "  External RTC (/dev/rtc1): $(sudo hwclock --rtc=/dev/rtc1 -r 2>/dev/null 
 echo
 echo "SUCCESS: External RTC services installed. On future boots, system time will be set from RTC, then RTC will be updated after NTP sync."
 
+# ----- MOUNT NVME SSD -----
+
+NVME_PART="/dev/nvme0n1p1"
+MOUNT_POINT="/mnt/nvme"
+
+# Ensure mount point exists
+sudo mkdir -p "$MOUNT_POINT"
+
+# Get UUID of NVMe partition
+NVME_UUID=$(blkid -s UUID -o value "$NVME_PART")
+
+# Throw an error if UUID could not be determined
+if [ -z "$NVME_UUID" ]; then
+  echo "ERROR: Could not determine UUID for $NVME_PART"
+  exit 1
+fi
+
+# Add to /etc/fstab if not already present
+if ! grep -q "$NVME_UUID" /etc/fstab; then
+  echo "Adding NVMe SSD to /etc/fstab"
+  echo "UUID=$NVME_UUID  $MOUNT_POINT  ext4  defaults,noatime  0  2" | sudo tee -a /etc/fstab
+else
+  echo "NVMe SSD already present in /etc/fstab"
+fi
+
+# Mount all
+sudo mount -a
+
+# Verify mount
+if mountpoint -q "$MOUNT_POINT"; then
+  echo "SUCCESS: NVMe SSD mounted at $MOUNT_POINT"
+else
+  echo "ERROR: NVMe SSD failed to mount"
+  exit 1
+fi
+
 # Final banner
 echo "------------------------------------------------------------"
 echo "SETUP COMPLETE, REBOOTING"
 echo "------------------------------------------------------------"
 
-
 # Reboot
 sudo reboot
-
-
-
