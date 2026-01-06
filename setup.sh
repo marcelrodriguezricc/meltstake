@@ -346,6 +346,7 @@ apt-get install -y \
   python3-smbus2 \
   liblgpio1 \
   liblgpio-dev \
+  util-linux-extra \
   && ok "System dependencies installed"
 
 # Project paths
