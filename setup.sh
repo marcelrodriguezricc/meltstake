@@ -691,3 +691,75 @@ sudo systemctl daemon-reload
 
 # Print success for building service files
 echo "SUCCESS: Melt Stake service file built and verified."
+
+# ----- EXTERNAL RTC -----
+
+# Create service script to set system clock from external RTC on start up
+sudo tee /etc/systemd/system/hwclock-rtc1.service >/dev/null <<'EOF'
+[Unit]
+Description=Set system clock from external RTC (/dev/rtc1)
+DefaultDependencies=no
+After=local-fs.target
+Before=time-sync.target sysinit.target
+
+[Service]
+Type=oneshot
+Environment=PATH=/usr/sbin:/usr/bin:/sbin:/bin
+ExecStart=hwclock --rtc=/dev/rtc1 --hctosys
+
+[Install]
+WantedBy=sysinit.target
+EOF
+
+# Reload daemon and enable service script
+sudo systemctl daemon-reload
+sudo systemctl enable --now hwclock-rtc1.service
+
+# Create service script to set RTC from network time
+sudo tee /etc/systemd/system/rtc-sync-to-hwclock.service >/dev/null <<'EOF'
+[Unit]
+Description=Update external RTC from system time after NTP sync
+After=time-sync.target
+Wants=time-sync.target
+
+[Service]
+Type=oneshot
+Environment=PATH=/usr/sbin:/usr/bin:/sbin:/bin
+ExecStart=hwclock --rtc=/dev/rtc1 --systohc
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Reload daemon and enable service script
+sudo systemctl daemon-reload
+sudo systemctl enable --now rtc-sync-to-hwclock.service
+
+# Disable fake clock
+sudo systemctl disable --now fake-hwclock 2>/dev/null || true
+sudo rm -f /etc/cron.hourly/fake-hwclock
+
+# Enable NTP so the system clock becomes correct when network is available
+sudo timedatectl set-ntp true
+timedatectl
+
+# RTC debugging printouts
+echo "RTC status summary:"
+echo "  System time: $(date)"
+echo -n "  NTP synchronized: "
+timedatectl show -p NTPSynchronized --value
+echo "  External RTC (/dev/rtc1): $(sudo hwclock --rtc=/dev/rtc1 -r 2>/dev/null || echo READ_FAILED)"
+echo
+echo "SUCCESS: External RTC services installed. On future boots, system time will be set from RTC, then RTC will be updated after NTP sync."
+
+# Final banner
+echo "------------------------------------------------------------"
+echo "SETUP COMPLETE, REBOOTING"
+echo "------------------------------------------------------------"
+
+
+# Reboot
+sudo reboot
+
+
+
