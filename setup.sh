@@ -713,7 +713,7 @@ EOF
 
 # Reload daemon and enable service script
 sudo systemctl daemon-reload
-sudo systemctl enable --now hwclock-rtc1.service
+sudo systemctl enable hwclock-rtc1.service
 
 # Create service script to set RTC from network time
 sudo tee /etc/systemd/system/rtc-sync-to-hwclock.service >/dev/null <<'EOF'
@@ -733,7 +733,7 @@ EOF
 
 # Reload daemon and enable service script
 sudo systemctl daemon-reload
-sudo systemctl enable --now rtc-sync-to-hwclock.service
+sudo systemctl enable rtc-sync-to-hwclock.service
 
 # Disable fake clock
 sudo systemctl disable --now fake-hwclock 2>/dev/null || true
