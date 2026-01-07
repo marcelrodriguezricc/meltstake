@@ -790,8 +790,5 @@ fi
 
 # Final banner
 echo "------------------------------------------------------------"
-echo "SETUP COMPLETE, REBOOTING"
+echo "SETUP COMPLETE, PLEASE REBOOT"
 echo "------------------------------------------------------------"
-
-# Reboot
-sudo reboot
