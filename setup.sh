@@ -350,7 +350,7 @@ apt-get install -y \
   && ok "System dependencies installed"
 
 # Project paths
-PROJECT_DIR="/home/pi/MeltStake-Pi5"
+PROJECT_DIR="/home/$SUDO_USER/meltstake"
 VENV_DIR="$PROJECT_DIR/venv"
 REQ_FILE="$PROJECT_DIR/requirements.txt"
 
@@ -372,7 +372,7 @@ log "Upgrading pip inside virtual environment"
   && ok "pip upgraded inside virutal environment"
 
 # Set virtual environment ownership
-chown -R pi:pi "$PROJECT_DIR"
+sudo chown -R "$SUDO_USER:$SUDO_USER" "$PROJECT_DIR"
 
 # Bootstrap build tools (pip/setuptools/wheel) to virtual environment
 log "Ensuring virtual environment build tools are present (pip/setuptools/wheel)"
@@ -409,7 +409,7 @@ log "Python version in virutal environment:"
 log "Installing Software Packages from GitHub..."
 
 # Create package directory
-PKG_DIR="/home/pi/packages"
+PKG_DIR="/home/$SUDO_USER/packages"
 log "Preparing package directory: $PKG_DIR"
 mkdir -p "$PKG_DIR" && ok "Package directory ready"
 
@@ -594,11 +594,11 @@ if [[ ! -d "$SERVICE_DIR" ]]; then
 fi
 
 # Set permissions for Project and Service Script directories
-sudo chown -R pi:pi "$PROJECT_DIR"
+sudo chown -R "$SUDO_USER:$SUDO_USER" "$PROJECT_DIR"
 touch "$SERVICE_DIR/LeakState.txt"
 chmod +x "$SERVICE_DIR"/*
 chmod +x "$PROJECT_DIR"/main.py
-chown -R pi:pi "$SERVICE_DIR"
+chown -R "$SUDO_USER:$SUDO_USER" "$SERVICE_DIR"
 
 # Print configuration success
 echo "SUCCESS: Permissions for project and service script directories configured."
@@ -627,7 +627,7 @@ Description=$SyslogIdentifier
 [Service]
 Type=simple
 WorkingDirectory=$PROJECT_DIR
-User=pi
+User=$SUDO_USER
 Restart=always
 RestartSec=10
 StandardOutput=append:/var/log/$SyslogIdentifier.log
@@ -640,7 +640,7 @@ WantedBy=multi-user.target
 EOM
 
   # Configure permission for log file
-  sudo chown pi:pi "$LOG_FILE"
+  sudo chown -R "$SUDO_USER:$SUDO_USER" "$LOG_FILE"
 
   # Enable service script
   sudo systemctl enable $SyslogIdentifier.service
@@ -689,7 +689,7 @@ WantedBy=multi-user.target
 EOM
 
 # Configure permission for log file
-sudo chown pi:pi "$LOG_FILE"
+sudo chown -R "$SUDO_USER:$SUDO_USER" "$LOG_FILE"
 
 # Enable service script
 sudo systemctl enable --now meltstake.service
