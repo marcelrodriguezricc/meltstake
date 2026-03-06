@@ -458,20 +458,28 @@ install_python_repo \
   "deployment" \
   || warn "Continuing after failure: ms5837-python"
 
-# Camera Capture
 install_repo \
-  "https://github.com/noahaosman/camera_capture.git" \
-  "/home/pi/camera_capture" \
-  "camera_capture" \
-  "MeltStakes" \
-  "setup.sh" \
+  "https://github.com/marcelrodriguezricc/meltstake-ptv.git" \
+  "/home/$SUDO_USER/meltstake-ptv" \
+  "meltstake_ptv" \
+  "" \
+  "scripts/setup.sh" \
   "yes" \
-  || warn "Continuing after failure: camera_capture"
+  || warn "Continuing after failure: meltstake-ptv"
+
+  install_repo \
+  "https://github.com/marcelrodriguezricc/meltstake-sonar.git" \
+  "/home/$SUDO_USER/meltstake-sonar" \
+  "meltstake_sonar" \
+  "" \
+  "scripts/setup.sh" \
+  "yes" \
+  || warn "Continuing after failure: meltstake-sonar"
 
 # Acoustic Beacon
 install_repo \
   "https://github.com/noahaosman/acoustic-beacons.git" \
-  "/home/pi/nav" \
+  "/home/$SUDO_USER/nav" \
   "acoustic-beacons" \
   "jasmine" \
   "install.sh" \
