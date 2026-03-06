@@ -150,8 +150,8 @@ install_repo() {
 
   # Set ownership and permissions
   log "Setting ownership and permissions for ${LABEL}"
-  chown -R pi:pi "$TARGET_DIR" \
-    && ok "Ownership set to pi:pi for ${LABEL}" \
+  chown -R "$SUDO_USER:$SUDO_USER" "$TARGET_DIR" \
+    && ok "Ownership set for ${LABEL}" \
     || warn "Failed to set ownership for ${LABEL}"
 
   chmod +x "$TARGET_DIR"/* 2>/dev/null \
@@ -278,7 +278,7 @@ echo
 log "Initializing data logging directory..."
 
 # Set data directory path
-DATA_DIR="/home/pi/data"
+DATA_DIR="/home/$SUDO_USER/data"
 
 # Create data directory
 if mkdir -p "$DATA_DIR"; then
@@ -309,9 +309,9 @@ for filename in "${dat_files[@]}"; do
 done
 
 # Set ownership
-log "Setting ownership to pi:pi"
-if chown -R pi:pi "$DATA_DIR"; then
-  ok "Ownership set to pi:pi"
+log "Setting ownership"
+if chown -R "$SUDO_USER:$SUDO_USER" "$DATA_DIR"; then
+  ok "Ownership set"
 else
   warn "Failed to set ownership on $DATA_DIR"
 fi
@@ -372,7 +372,7 @@ log "Upgrading pip inside virtual environment"
   && ok "pip upgraded inside virutal environment"
 
 # Set virtual environment ownership
-sudo chown -R "$SUDO_USER:$SUDO_USER" "$PROJECT_DIR"
+chown -R "$SUDO_USER:$SUDO_USER" "$PROJECT_DIR"
 
 # Bootstrap build tools (pip/setuptools/wheel) to virtual environment
 log "Ensuring virtual environment build tools are present (pip/setuptools/wheel)"
@@ -594,7 +594,7 @@ if [[ ! -d "$SERVICE_DIR" ]]; then
 fi
 
 # Set permissions for Project and Service Script directories
-sudo chown -R "$SUDO_USER:$SUDO_USER" "$PROJECT_DIR"
+chown -R "$SUDO_USER:$SUDO_USER" "$PROJECT_DIR"
 touch "$SERVICE_DIR/LeakState.txt"
 chmod +x "$SERVICE_DIR"/*
 chmod +x "$PROJECT_DIR"/main.py
@@ -640,7 +640,7 @@ WantedBy=multi-user.target
 EOM
 
   # Configure permission for log file
-  sudo chown -R "$SUDO_USER:$SUDO_USER" "$LOG_FILE"
+  chown -R "$SUDO_USER:$SUDO_USER" "$LOG_FILE"
 
   # Enable service script
   sudo systemctl enable $SyslogIdentifier.service
@@ -689,7 +689,7 @@ WantedBy=multi-user.target
 EOM
 
 # Configure permission for log file
-sudo chown -R "$SUDO_USER:$SUDO_USER" "$LOG_FILE"
+chown -R "$SUDO_USER:$SUDO_USER" "$LOG_FILE"
 
 # Enable service script
 sudo systemctl enable --now meltstake.service
