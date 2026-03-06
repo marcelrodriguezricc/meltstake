@@ -1,15 +1,15 @@
 
 Code for melt stake control, interfacing, and data collection.
 
-Confirmed to work on Raspbian GNU/Linux 11 (bullseye) 32-bit Lite
+Confirmed to work on Raspberry Pi OS Lite (64-bit)
 
 # Installation
 The simplest installation method is via git:
 - `sudo apt update`
 - `sudo apt install -y git`
 - `cd ~/`
-- `git clone https://github.com/noahaosman/MeltStake`
-- `cd MeltStake`
+- `git clone https://github.com/marcelrodriguezricc/meltstake`
+- `cd meltstake`
 - `sudo bash setup.sh '00'  # replace '00' with the melt stake ID number`
 
 The default IP address for all Raspberry pi on a shared network can be found by running:
