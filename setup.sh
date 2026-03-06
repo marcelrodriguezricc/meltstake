@@ -762,6 +762,8 @@ echo "SUCCESS: External RTC services installed. On future boots, system time wil
 
 # ----- MOUNT NVME SSD -----
 
+echo "Mounting NVME SSD..."
+
 NVME_PART="/dev/nvme0n1p1"
 MOUNT_POINT="/mnt/nvme"
 
@@ -769,7 +771,7 @@ MOUNT_POINT="/mnt/nvme"
 sudo mkdir -p "$MOUNT_POINT"
 
 # Get UUID of NVMe partition
-NVME_UUID=$(blkid -s UUID -o value "$NVME_PART")
+NVME_UUID=$(sudo blkid -s UUID -o value "$NVME_PART")
 
 # Throw an error if UUID could not be determined
 if [ -z "$NVME_UUID" ]; then

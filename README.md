@@ -15,6 +15,8 @@ The simplest installation method is via git:
 The default IP address for all Raspberry pi on a shared network can be found by running:
 - `arp -n -a | grep -i ' 28:\| B8:\| D8:\| DC:\| E4:'`
 
+If installing by a remote connection, connection is likely to be lost when network settings are updated — we recommend running setup locally if possible.
+
 # Standard Operating Procedure
 For long-term deployment, hand-load melt stake onto Walrus (delivery ROV). SSH into Walrus (`pi@192.168.1.3`(?) psk:`companion`) and navigate to `/home/pi/nav`. Run `tail -f unicast.txt` to monitor for any messages recieved from the melt stake. Run 
 `send_command.py <BEACON_ID> DRILL 25 25` 
